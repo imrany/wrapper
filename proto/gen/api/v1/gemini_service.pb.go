@@ -8,6 +8,7 @@ package v1
 
 import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
+	status "google.golang.org/genproto/googleapis/rpc/status"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -72,7 +73,9 @@ type GenAiResponse struct {
 	// Original user prompt
 	Prompt string `protobuf:"bytes,1,opt,name=prompt,proto3" json:"prompt,omitempty"`
 	// AI generated response
-	Response      string `protobuf:"bytes,2,opt,name=response,proto3" json:"response,omitempty"`
+	Response string `protobuf:"bytes,2,opt,name=response,proto3" json:"response,omitempty"`
+	// Optional: structured error info
+	Status        *status.Status `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -121,18 +124,26 @@ func (x *GenAiResponse) GetResponse() string {
 	return ""
 }
 
+func (x *GenAiResponse) GetStatus() *status.Status {
+	if x != nil {
+		return x.Status
+	}
+	return nil
+}
+
 var File_api_v1_gemini_service_proto protoreflect.FileDescriptor
 
 const file_api_v1_gemini_service_proto_rawDesc = "" +
 	"\n" +
-	"\x1bapi/v1/gemini_service.proto\x12\x0ewrapper.api.v1\x1a\x1cgoogle/api/annotations.proto\"&\n" +
-	"\fGenAiRequest\x12\x16\n" +
-	"\x06prompt\x18\x01 \x01(\tR\x06prompt\"C\n" +
-	"\rGenAiResponse\x12\x16\n" +
-	"\x06prompt\x18\x01 \x01(\tR\x06prompt\x12\x1a\n" +
-	"\bresponse\x18\x02 \x01(\tR\bresponse2g\n" +
-	"\tAiService\x12Z\n" +
-	"\x05GenAi\x12\x1c.wrapper.api.v1.GenAiRequest\x1a\x1d.wrapper.api.v1.GenAiResponse\"\x14\x82\xd3\xe4\x93\x02\x0e:\x01*\"\t/v1/genaiB\fZ\n" +
+	"\x1bapi/v1/gemini_service.proto\x12\fmemos.api.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x17google/rpc/status.proto\"+\n" +
+	"\fGenAiRequest\x12\x1b\n" +
+	"\x06prompt\x18\x01 \x01(\tB\x03\xe0A\x02R\x06prompt\"~\n" +
+	"\rGenAiResponse\x12\x1b\n" +
+	"\x06prompt\x18\x01 \x01(\tB\x03\xe0A\x02R\x06prompt\x12\x1f\n" +
+	"\bresponse\x18\x02 \x01(\tB\x03\xe0A\x02R\bresponse\x12/\n" +
+	"\x06status\x18\x03 \x01(\v2\x12.google.rpc.StatusB\x03\xe0A\x01R\x06status2h\n" +
+	"\tAiService\x12[\n" +
+	"\x05GenAi\x12\x1a.memos.api.v1.GenAiRequest\x1a\x1b.memos.api.v1.GenAiResponse\"\x19\x82\xd3\xe4\x93\x02\x13:\x06prompt\"\t/v1/genaiB\fZ\n" +
 	"gen/api/v1b\x06proto3"
 
 var (
@@ -149,17 +160,19 @@ func file_api_v1_gemini_service_proto_rawDescGZIP() []byte {
 
 var file_api_v1_gemini_service_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_api_v1_gemini_service_proto_goTypes = []any{
-	(*GenAiRequest)(nil),  // 0: wrapper.api.v1.GenAiRequest
-	(*GenAiResponse)(nil), // 1: wrapper.api.v1.GenAiResponse
+	(*GenAiRequest)(nil),  // 0: memos.api.v1.GenAiRequest
+	(*GenAiResponse)(nil), // 1: memos.api.v1.GenAiResponse
+	(*status.Status)(nil), // 2: google.rpc.Status
 }
 var file_api_v1_gemini_service_proto_depIdxs = []int32{
-	0, // 0: wrapper.api.v1.AiService.GenAi:input_type -> wrapper.api.v1.GenAiRequest
-	1, // 1: wrapper.api.v1.AiService.GenAi:output_type -> wrapper.api.v1.GenAiResponse
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	2, // 0: memos.api.v1.GenAiResponse.status:type_name -> google.rpc.Status
+	0, // 1: memos.api.v1.AiService.GenAi:input_type -> memos.api.v1.GenAiRequest
+	1, // 2: memos.api.v1.AiService.GenAi:output_type -> memos.api.v1.GenAiResponse
+	2, // [2:3] is the sub-list for method output_type
+	1, // [1:2] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_api_v1_gemini_service_proto_init() }

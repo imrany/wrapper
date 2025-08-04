@@ -11,8 +11,10 @@ import (
     "github.com/spf13/cobra"
     "github.com/spf13/viper"
     "google.golang.org/grpc"
+    "google.golang.org/grpc/reflection"
 
-    pb "github.com/imrany/wrapper/proto/gen/api/v1" // adjust import path to match your module
+    pb "github.com/imrany/wrapper/proto/gen/api/v1"
+    apiv1 "github.com/imrany/wrapper/router/api/v1"
 )
 
 var rootCmd = &cobra.Command{
@@ -43,7 +45,10 @@ func runServer(_ *cobra.Command, _ []string) {
     grpcServer := grpc.NewServer()
 
     // Register your service implementation
-    pb.RegisterAiServiceServer(grpcServer, &AiService{APIKey: apiKey})
+    pb.RegisterAiServiceServer(grpcServer, &apiv1.GeminiService{APIKey: apiKey})
+
+    // Optional: Enable reflection for easier debugging
+    reflection.Register(grpcServer)
 
     log.Printf("🚀 gRPC server listening on %s", addr)
     if err := grpcServer.Serve(lis); err != nil {
@@ -51,21 +56,6 @@ func runServer(_ *cobra.Command, _ []string) {
     }
 
     <-ctx.Done()
-}
-
-// AiService implements pb.AiServiceServer
-type AiService struct {
-    pb.UnimplementedAiServiceServer
-    APIKey string
-}
-
-func (s *AiService) GenAi(ctx context.Context, req *pb.GenAiRequest) (*pb.GenAiResponse, error) {
-    // Dummy response using the API key
-    response := fmt.Sprintf("Generated response to '%s' using Gemini API key: %s", req.Prompt, s.APIKey)
-    return &pb.GenAiResponse{
-        Prompt:   req.Prompt,
-        Response: response,
-    }, nil
 }
 
 func init() {
@@ -76,8 +66,8 @@ func init() {
     viper.AutomaticEnv()
 
     envBindings := map[string]string{
-        "port":            "PORT",
-        "gemini-api-key":  "GEMINI_API_KEY",
+        "port":           "PORT",
+        "gemini-api-key": "GEMINI_API_KEY",
     }
 
     rootCmd.PersistentFlags().Int("port", 8080, "Port to run the gRPC server on")
