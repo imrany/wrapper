@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package wrapper.api.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "gen/api/v1";
+
+service AiService {
+  rpc GenAi(GenAiRequest) returns (GenAiResponse) {
+    option (google.api.http) = {
+      post: "/v1/genai"
+      body: "*"
+    };
+  }
+}
+
+message GenAiRequest {
+    // User prompt for AI generation
+    string prompt = 1;
+}
+
+message GenAiResponse {
+    // Original user prompt
+    string prompt = 1;
+    
+    // AI generated response
+    string response = 2;
+}
