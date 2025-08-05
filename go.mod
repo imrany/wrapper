@@ -1,6 +1,6 @@
 module github.com/imrany/wrapper
 
-go 1.24.3
+go 1.23.0
 
 require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.1
