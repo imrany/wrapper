@@ -17,7 +17,7 @@ type GeminiService struct {
 
 func (s *GeminiService) GenAi(ctx context.Context, req *pb.GenAiRequest) (*pb.GenAiResponse, error) {
     if req.Prompt == "" {
-        return nil, status.Error(codes.InvalidArgument, "prompt cannot be empty")
+        return nil, status.Error(codes.InvalidArgument, "prompt cannot be empty") 
     }
 
     client, err := genai.NewClient(ctx, &genai.ClientConfig{
