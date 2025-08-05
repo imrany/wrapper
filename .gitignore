@@ -1,2 +1,6 @@
 googleapis
 .env
+
+bin/
+wrapper
+*.log
