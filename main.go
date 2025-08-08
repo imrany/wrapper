@@ -5,7 +5,10 @@ import (
     "fmt"
     "log"
     "net"
+    "net/http"
     "os"
+    "os/signal"
+    "syscall"
 
     "github.com/joho/godotenv"
     "github.com/spf13/cobra"
@@ -13,18 +16,30 @@ import (
     "google.golang.org/grpc"
     "google.golang.org/grpc/reflection"
 
+    "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+
     pb "github.com/imrany/wrapper/proto/gen/api/v1"
     apiv1 "github.com/imrany/wrapper/router/api/v1"
 )
 
 var rootCmd = &cobra.Command{
     Use:   "wrapper",
-    Short: "Wrapper is a Gemini gRPC service",
+    Short: "Wrapper is a Gemini gRPC + REST service",
     Run:   runServer,
 }
 
 func runServer(_ *cobra.Command, _ []string) {
-    ctx := context.Background()
+    ctx, cancel := context.WithCancel(context.Background())
+    defer cancel()
+
+    // Handle graceful shutdown
+    go func() {
+        sigCh := make(chan os.Signal, 1)
+        signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
+        <-sigCh
+        log.Println("🛑 Shutting down server...")
+        cancel()
+    }()
 
     port := viper.GetInt("port")
     if port == 0 {
@@ -43,16 +58,34 @@ func runServer(_ *cobra.Command, _ []string) {
     }
 
     grpcServer := grpc.NewServer()
-
-    // Register your service implementation
-    pb.RegisterAiServiceServer(grpcServer, &apiv1.GeminiService{APIKey: apiKey})
-
-    // Optional: Enable reflection for easier debugging
+    pb.RegisterAiServiceServer(grpcServer, &apiv1.APIV1Service{
+        APIKey: apiKey,
+    })
     reflection.Register(grpcServer)
 
-    log.Printf("🚀 gRPC server listening on %s", addr)
-    if err := grpcServer.Serve(lis); err != nil {
-        log.Fatalf("gRPC server failed: %v", err)
+    // Start gRPC server in a goroutine
+    go func() {
+        log.Printf("🚀 gRPC server listening on %s", addr)
+        if err := grpcServer.Serve(lis); err != nil {
+            log.Fatalf("gRPC server failed: %v", err)
+        }
+    }()
+
+    // Setup REST gateway
+    mux := http.NewServeMux()
+    gw := runtime.NewServeMux()
+
+    dialOpts := []grpc.DialOption{grpc.WithInsecure()}
+    if err := pb.RegisterAiServiceHandlerFromEndpoint(ctx, gw, addr, dialOpts); err != nil {
+        log.Fatalf("Failed to register gateway: %v", err)
+    }
+
+    mux.Handle("/api/", gw)
+    mux.Handle("/swagger/", http.StripPrefix("/swagger/", http.FileServer(http.Dir("proto/gen/api/v1"))))
+
+    log.Println("🌐 REST gateway + Swagger UI listening on :8090")
+    if err := http.ListenAndServe(":8090", mux); err != nil {
+        log.Fatalf("HTTP server failed: %v", err)
     }
 
     <-ctx.Done()

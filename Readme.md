@@ -44,3 +44,9 @@ GEMINI_API_KEY=your-key-here
 ```bash
 docker run --env-file .env -p 8000:8000 wrapper
 ```
+
+```bash
+curl -X POST http://localhost:8090/api/v1/genai \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "Hello"}'
+```

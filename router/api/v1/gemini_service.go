@@ -7,15 +7,10 @@ import (
     "google.golang.org/genai"
     "google.golang.org/grpc/codes"
     "google.golang.org/grpc/status"
-    pb "github.com/imrany/wrapper/proto/gen/api/v1"
+    v1pb "github.com/imrany/wrapper/proto/gen/api/v1"
 )
 
-type GeminiService struct {
-    pb.UnimplementedAiServiceServer
-    APIKey string
-}
-
-func (s *GeminiService) GenAi(ctx context.Context, req *pb.GenAiRequest) (*pb.GenAiResponse, error) {
+func (s *APIV1Service) GenAi(ctx context.Context, req *v1pb.GenAiRequest) (*v1pb.GenAiResponse, error) {
     if req.Prompt == "" {
         return nil, status.Error(codes.InvalidArgument, "prompt cannot be empty") 
     }
@@ -39,7 +34,7 @@ func (s *GeminiService) GenAi(ctx context.Context, req *pb.GenAiRequest) (*pb.Ge
         return nil, status.Error(codes.Canceled,"Gemini generation failed")
     }
 
-    return &pb.GenAiResponse{
+    return &v1pb.GenAiResponse{
         Prompt:   req.Prompt,
         Response: result.Text(),
     }, nil
