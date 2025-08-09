@@ -24,7 +24,7 @@ import (
 
 var rootCmd = &cobra.Command{
     Use:   "wrapper",
-    Short: "Wrapper is a Gemini gRPC + REST service",
+    Short: "Wrapper is a AI gRPC + REST service",
     Run:   runServer,
 }
 
@@ -46,9 +46,9 @@ func runServer(_ *cobra.Command, _ []string) {
         port = 8080
     }
 
-    apiKey := viper.GetString("gemini-api-key")
+    apiKey := viper.GetString("api-key")
     if apiKey == "" {
-        log.Println("⚠️  No Gemini API key provided")
+        log.Println("⚠️  No API key provided, e.g Gemini api")
     }
 
     addr := fmt.Sprintf("0.0.0.0:%d", port)
@@ -99,12 +99,12 @@ func init() {
     viper.AutomaticEnv()
 
     envBindings := map[string]string{
-        "port":           "PORT",
-        "gemini-api-key": "GEMINI_API_KEY",
+        "port":     "PORT",
+        "api-key":  "API_KEY",
     }
 
     rootCmd.PersistentFlags().Int("port", 8080, "Port to run the gRPC server on")
-    rootCmd.PersistentFlags().String("gemini-api-key", "", "Gemini API key")
+    rootCmd.PersistentFlags().String("api-key", "", "API key, e.g Gemini API Key")
 
     for key, env := range envBindings {
         if err := viper.BindEnv(key, env); err != nil {

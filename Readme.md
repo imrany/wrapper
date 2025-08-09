@@ -1,7 +1,7 @@
 A wrapper for gemini ai models
 
 ```bash
-go run main.go --port=5000 --gemini-api-key=your-key
+go run main.go --port=5000 --api-key=your-key
 ```
 
 ## 🧪 How to Build and Run
@@ -15,16 +15,16 @@ docker build -t wrapper .
 ### 2. **Run with flags**
 
 ```bash
-docker run -p 8000:8000 wrapper --port=8000 --gemini-api-key=your-key-here
+docker run -p 8000:8000 wrapper --port=8000 --api-key=your-key-here
 ```
 
 Or using an environment variable:
 
 ```bash
-docker run -p 8000:8000 -e GEMINI_API_KEY=your-key-here wrapper --port=8000
+docker run -p 8000:8000 -e API_KEY=your-key-here wrapper --port=8000
 ```
 
-The app will pick up `GEMINI_API_KEY` via Viper’s `AutomaticEnv()`.
+The app will pick up `API_KEY` via Viper’s `AutomaticEnv()`.
 
 ---
 
@@ -36,7 +36,7 @@ If you want to use a `.env` file:
 
 ```env
 PORT=8000
-GEMINI_API_KEY=your-key-here
+API_KEY=your-key-here
 ```
 
 ### 2. Run with env file
