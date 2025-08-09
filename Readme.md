@@ -11,17 +11,41 @@ go run main.go --port=5000 --api-key=your-key
 ```bash
 docker build -t wrapper .
 ```
+or Pull the image for github
+```bash
+docker pull ghcr.io/imrany/wrapper
+```
 
 ### 2. **Run with flags**
 
 ```bash
-docker run -p 8000:8000 wrapper --port=8000 --api-key=your-key-here
+docker run -d \
+  -p 8000:8000 \  # gRPC
+  -p 8090:8090 \  # REST + Swagger
+  ghcr.io/imrany/wrapper \
+  --port=8000 \
+  --api-key=your_key_here
 ```
 
 Or using an environment variable:
 
 ```bash
-docker run -p 8000:8000 -e API_KEY=your-key-here wrapper --port=8000
+docker run -d \
+  -p 8000:8000 \
+  -p 8090:8090 \
+  --env-file .env \
+  ghcr.io/imrany/wrapper \
+  --port=8000 \
+  --api-key=your_key_here
+```
+or inline env
+
+```bash
+docker run -d \
+  -p 8000:8000 \
+  -p 8090:8090 \
+  -e API_KEY=your_key_here \
+  ghcr.io/imrany/wrapper
 ```
 
 The app will pick up `API_KEY` via Viper’s `AutomaticEnv()`.
