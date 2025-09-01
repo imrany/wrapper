@@ -80,7 +80,7 @@ func runServer(_ *cobra.Command, _ []string) {
         log.Fatalf("Failed to register gateway: %v", err)
     }
 
-    mux.Handle("/api/", gw)
+    mux.Handle("/", gw)
     mux.Handle("/swagger/", http.StripPrefix("/swagger/", http.FileServer(http.Dir("proto/gen/api/v1"))))
 
     log.Println("🌐 REST gateway + Swagger UI listening on :8090")
