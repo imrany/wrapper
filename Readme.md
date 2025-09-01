@@ -1,22 +1,51 @@
-A wrapper for gemini ai models
+# 🧠 Gemini AI Wrapper
+
+A lightweight gRPC + RESTful wrapper for Gemini AI models. Built in Go, this service exposes a unified interface for AI generation via both protocol-level gRPC and HTTP/JSON endpoints. Includes Swagger UI, Docker support, and flexible configuration via flags or environment variables.
+
+
+## 🚀 Features
+
+- ✅ gRPC service: `AiService.GenAi(prompt)`
+- ✅ RESTful HTTP endpoint: `POST /v1/genai`
+- ✅ Swagger UI for interactive API testing
+- ✅ Docker-ready with multi-port support
+- ✅ Configurable via flags, `.env`, or inline environment variables
+- ✅ Graceful shutdown and signal handling
+- ✅ Gemini API key integration
+
+---
+
+## 🧪 Quick Start
+
+### 1. **Run Locally**
 
 ```bash
-go run main.go --port=5000 --api-key=your-key
+go run main.go --port=8000 --api-key=your_key_here
 ```
 
-## 🧪 How to Build and Run
+Or use environment variables:
 
-### 1. **Build the Docker image**
+```bash
+export PORT=8000
+export API_KEY=your_key_here
+go run main.go
+```
+
+### 2. **Build Docker Image**
 
 ```bash
 docker build -t wrapper .
 ```
-or Pull the image for github
+
+Or pull from GitHub Container Registry:
+
 ```bash
 docker pull ghcr.io/imrany/wrapper
 ```
 
-### 2. **Run with flags**
+### 3. **Run with Docker**
+
+#### Option A: Inline flags
 
 ```bash
 docker run -d \
@@ -27,66 +56,88 @@ docker run -d \
   --api-key=your_key_here
 ```
 
-Or using an environment variable:
+#### Option B: `.env` file
 
-```bash
-docker run -d \
-  -p 8000:8000 \
-  -p 8090:8090 \
-  --env-file .env \
-  ghcr.io/imrany/wrapper \
-  --port=8000 \
-  --api-key=your_key_here
-```
-or inline env
-
-```bash
-docker run -d \
-  -p 8000:8000 \
-  -p 8090:8090 \
-  -e API_KEY=your_key_here \
-  ghcr.io/imrany/wrapper
-```
-
-The app will pick up `API_KEY` via Viper’s `AutomaticEnv()`.
-
----
-
-## 🧠 Bonus: Use `.env` File in Docker
-
-If you want to use a `.env` file:
-
-### 1. Create `.env`
-
+Create `.env`:
 ```env
 PORT=8000
-API_KEY=your-key-here
+API_KEY=your_key_here
 ```
 
-### 2. Run with env file
-
+Run:
 ```bash
-docker run --env-file .env -p 8000:8000 wrapper
+docker run --env-file .env -p 8000:8000 -p 8090:8090 ghcr.io/imrany/wrapper
 ```
-## Testing
-### 1. HTTP Server
+
+## 📡 API Endpoints
+
+### 1. **REST (HTTP/JSON)**
+
+```http
+POST /v1/genai
+Content-Type: application/json
+Body: "Hello AI"
+```
+
+#### Example:
 ```bash
 curl -X POST http://localhost:8090/v1/genai \
   -H "Content-Type: application/json" \
   -d '"Hello AI"'
 ```
-### 2. GRPC Server
+
+### 2. **gRPC**
+
+```proto
+service AiService {
+  rpc GenAi(GenAiRequest) returns (GenAiResponse);
+}
+```
+
+#### Example:
 ```bash
 grpcurl -insecure localhost:8000 \
   wekalist.api.v1.AiService.GenAi \
   -d '{"prompt": "Hello AI"}'
 ```
 
-### Response
+---
+
+### 3. **Swagger UI**
+
+Visit:
+```
+http://localhost:8090/swagger/
+```
+
+## 🧠 Response Format
+
 ```json
 {
-  "prompt":"Hello AI",
-  "response":"Hello! How can I help you today?\n",
-  "status":null
+  "prompt": "Hello AI",
+  "response": "Hello! How can I help you today?\n",
+  "status": null
 }
 ```
+
+## 🔐 Environment Variables
+
+| Variable   | Description               |
+|------------|---------------------------|
+| `PORT`     | gRPC server port          |
+| `API_KEY`  | Gemini API key            |
+
+---
+
+## 🛡️ Health Check
+
+```http
+GET /healthz
+```
+
+Returns `200 OK` with body `ok`.
+
+## 🧠 License & Credits
+
+Built by [Imran](https://github.com/imrany)  
+Licensed under MIT
