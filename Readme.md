@@ -68,9 +68,25 @@ API_KEY=your-key-here
 ```bash
 docker run --env-file .env -p 8000:8000 wrapper
 ```
-
+## Testing
+### 1. HTTP Server
 ```bash
-curl -X POST http://localhost:8090/api/v1/genai \
+curl -X POST http://localhost:8090/v1/genai \
   -H "Content-Type: application/json" \
-  -d '{"prompt": "Hello"}'
+  -d '"Hello AI"'
+```
+### 2. GRPC Server
+```bash
+grpcurl -insecure localhost:8000 \
+  wekalist.api.v1.AiService.GenAi \
+  -d '{"prompt": "Hello AI"}'
+```
+
+### Response
+```json
+{
+  "prompt":"Hello AI",
+  "response":"Hello! How can I help you today?\n",
+  "status":null
+}
 ```
