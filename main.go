@@ -84,11 +84,28 @@ func runServer(_ *cobra.Command, _ []string) {
     mux.Handle("/swagger/", http.StripPrefix("/swagger/", http.FileServer(http.Dir("proto/gen/api/v1"))))
 
     log.Println("🌐 REST gateway + Swagger UI listening on :8090")
-    if err := http.ListenAndServe(":8090", mux); err != nil {
+    if err := http.ListenAndServe(":8090", withCORS(mux)); err != nil {
         log.Fatalf("HTTP server failed: %v", err)
     }
 
     <-ctx.Done()
+}
+
+func withCORS(h http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        // Allow frontend origin
+        w.Header().Set("Access-Control-Allow-Origin", "*")
+        w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+        w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+        // Handle preflight request
+        if r.Method == http.MethodOptions {
+            w.WriteHeader(http.StatusOK)
+            return
+        }
+
+        h.ServeHTTP(w, r)
+    })
 }
 
 func init() {
