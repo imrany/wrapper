@@ -128,10 +128,11 @@ Visit: `http://localhost:8090/swagger/`
 
 ## 🔐 Environment Variables
 
-| Variable  | Description      |
-| --------- | ---------------- |
-| `PORT`    | gRPC server port |
-| `API_KEY` | Gemini API key   |
+| Variable  | Description                                                   |
+| --------- | ------------------------------------------------------------- |
+| `PORT`    | gRPC server port                                              |
+| `API_KEY` | Gemini API key                                                |
+| `MODEL`   | Provides model name, e.g gemini-2.0-flash, gpt-5.1-2025-11-13 |
 
 ---
 
