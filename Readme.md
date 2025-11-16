@@ -51,7 +51,7 @@ docker pull ghcr.io/imrany/wrapper
 #### Option A: Inline flags
 
 ```bash
-docker run -d \
+docker run -d --name wrapper \
   -p 8000:8000 \  # gRPC
   -p 8090:8090 \  # REST + Swagger
   ghcr.io/imrany/wrapper \
