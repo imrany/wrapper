@@ -66,8 +66,8 @@ Create `.env`:
 
 ```env
 PORT=8000
-API_KEY=your_key_here
-MODEL=gemini-2.0-flash
+API_KEY="your_key_here"
+MODEL="gemini-2.0-flash" # or "gpt-5.1-2025-11-13"
 ```
 
 Run:
