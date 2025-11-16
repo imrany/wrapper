@@ -1,10 +1,11 @@
 package v1
 
-import(
+import (
 	v1pb "github.com/imrany/wrapper/proto/gen/api/v1"
 )
 
 type APIV1Service struct {
-    v1pb.UnimplementedAiServiceServer
-    APIKey string
+	v1pb.UnimplementedAiServiceServer
+	APIKey string
+	Model  string
 }

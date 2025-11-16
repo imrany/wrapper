@@ -5,6 +5,7 @@ go 1.24.0
 require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.3
 	github.com/joho/godotenv v1.5.1
+	github.com/sashabaranov/go-openai v1.41.2
 	github.com/spf13/cobra v1.10.1
 	github.com/spf13/viper v1.21.0
 	google.golang.org/genai v1.34.0
