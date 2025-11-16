@@ -1,7 +1,9 @@
 # 🧠 Gemini AI Wrapper
 
-A lightweight gRPC + RESTful wrapper for Gemini AI models. Built in Go, this service exposes a unified interface for AI generation via both protocol-level gRPC and HTTP/JSON endpoints. Includes Swagger UI, Docker support, and flexible configuration via flags or environment variables.
-
+A lightweight gRPC + RESTful wrapper for Gemini AI models. Built in Go,
+this service exposes a unified interface for AI generation via both
+protocol-level gRPC and HTTP/JSON endpoints. Includes Swagger UI,
+Docker support, and flexible configuration via flags or environment variables.
 
 ## 🚀 Features
 
@@ -20,7 +22,7 @@ A lightweight gRPC + RESTful wrapper for Gemini AI models. Built in Go, this ser
 ### 1. **Run Locally**
 
 ```bash
-go run main.go --port=8000 --api-key=your_key_here
+go run main.go --port=8000 --api-key=your_key_here --model=gemini-2.0-flash
 ```
 
 Or use environment variables:
@@ -28,6 +30,7 @@ Or use environment variables:
 ```bash
 export PORT=8000
 export API_KEY=your_key_here
+export MODEL=gemini-2.0-flash
 go run main.go
 ```
 
@@ -54,17 +57,21 @@ docker run -d \
   ghcr.io/imrany/wrapper \
   --port=8000 \
   --api-key=your_key_here
+  --model=gemini-2.0-flash
 ```
 
 #### Option B: `.env` file
 
 Create `.env`:
+
 ```env
 PORT=8000
 API_KEY=your_key_here
+MODEL=gemini-2.0-flash
 ```
 
 Run:
+
 ```bash
 docker run --env-file .env -p 8000:8000 -p 8090:8090 ghcr.io/imrany/wrapper
 ```
@@ -80,6 +87,7 @@ Body: "Hello AI"
 ```
 
 #### Example:
+
 ```bash
 curl -X POST http://localhost:8090/v1/genai \
   -H "Content-Type: application/json" \
@@ -95,6 +103,7 @@ service AiService {
 ```
 
 #### Example:
+
 ```bash
 grpcurl -insecure localhost:8000 \
   wekalist.api.v1.AiService.GenAi \
@@ -106,6 +115,7 @@ grpcurl -insecure localhost:8000 \
 ### 3. **Swagger UI**
 
 Visit:
+
 ```
 http://localhost:8090/swagger/
 ```
@@ -122,10 +132,10 @@ http://localhost:8090/swagger/
 
 ## 🔐 Environment Variables
 
-| Variable   | Description               |
-|------------|---------------------------|
-| `PORT`     | gRPC server port          |
-| `API_KEY`  | Gemini API key            |
+| Variable  | Description      |
+| --------- | ---------------- |
+| `PORT`    | gRPC server port |
+| `API_KEY` | Gemini API key   |
 
 ---
 
@@ -139,5 +149,5 @@ Returns `200 OK` with body `ok`.
 
 ## 🧠 License & Credits
 
-Built by [Imran](https://github.com/imrany)  
+Built by [Imran](https://github.com/imrany)
 Licensed under MIT
