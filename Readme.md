@@ -1,6 +1,6 @@
-# 🧠 Gemini AI Wrapper
+# Wrapper
 
-A lightweight gRPC + RESTful wrapper for Gemini AI models. Built in Go,
+A lightweight gRPC + RESTful wrapper for AI models. Built in Go,
 this service exposes a unified interface for AI generation via both
 protocol-level gRPC and HTTP/JSON endpoints. Includes Swagger UI,
 Docker support, and flexible configuration via flags or environment variables.
@@ -86,7 +86,7 @@ Content-Type: application/json
 Body: "Hello AI"
 ```
 
-#### Example:
+#### Example
 
 ```bash
 curl -X POST http://localhost:8090/v1/genai \
@@ -102,7 +102,7 @@ service AiService {
 }
 ```
 
-#### Example:
+#### Example
 
 ```bash
 grpcurl -insecure localhost:8000 \
@@ -114,11 +114,7 @@ grpcurl -insecure localhost:8000 \
 
 ### 3. **Swagger UI**
 
-Visit:
-
-```
-http://localhost:8090/swagger/
-```
+Visit: `http://localhost:8090/swagger/`
 
 ## 🧠 Response Format
 
