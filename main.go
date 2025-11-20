@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
+	"log/slog"
 	"net"
 	"net/http"
 	"os"
@@ -29,6 +29,8 @@ var rootCmd = &cobra.Command{
 	Run:   runServer,
 }
 
+var logger = slog.New(slog.NewJSONHandler(os.Stdout, nil))
+
 func runServer(_ *cobra.Command, _ []string) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -40,23 +42,26 @@ func runServer(_ *cobra.Command, _ []string) {
 
 	apiKey := viper.GetString("api-key")
 	if apiKey == "" {
-		log.Println("⚠️  No API key provided, e.g Gemini api")
+		logger.Warn("No API key provided, e.g Gemini api")
 	}
 
 	model := viper.GetString("model")
 	if model == "" {
-		log.Fatal("⚠️  No model provided, e.g gemini-2.0-flash")
+		logger.Error("No model provided, e.g gemini-2.0-flash")
+		return
 	}
 
 	addr := fmt.Sprintf("0.0.0.0:%d", port)
 	lis, err := net.Listen("tcp", addr)
 	if err != nil {
-		log.Fatalf("Failed to listen on %s: %v", addr, err)
+		logger.Error("Failed to listen", "address", addr, "error", err)
+		return
 	}
 
 	// Create gRPC server
 	grpcServer := grpc.NewServer()
 	pb.RegisterAiServiceServer(grpcServer, &apiv1.APIV1Service{
+		Logger: logger,
 		APIKey: apiKey,
 		Model:  model,
 	})
@@ -64,9 +69,9 @@ func runServer(_ *cobra.Command, _ []string) {
 
 	// Start gRPC server in a goroutine
 	go func() {
-		log.Printf("🚀 gRPC server listening on %s", addr)
+		logger.Info("gRPC server listening", "address", addr)
 		if err := grpcServer.Serve(lis); err != nil {
-			log.Printf("gRPC server stopped: %v", err)
+			logger.Error("gRPC server stopped", "error", err)
 		}
 	}()
 
@@ -76,7 +81,8 @@ func runServer(_ *cobra.Command, _ []string) {
 	dialOpts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 
 	if err := pb.RegisterAiServiceHandlerFromEndpoint(ctx, gw, addr, dialOpts); err != nil {
-		log.Fatalf("Failed to register gateway: %v", err)
+		logger.Error("Failed to register gateway", "error", err)
+		return
 	}
 
 	mux.Handle("/", gw)
@@ -90,9 +96,9 @@ func runServer(_ *cobra.Command, _ []string) {
 
 	// Start HTTP server in a goroutine
 	go func() {
-		log.Println("🌐 REST gateway + Swagger UI listening on :8090")
+		logger.Info("REST gateway + Swagger UI listening", "address", httpServer.Addr)
 		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("HTTP server failed: %v", err)
+			logger.Error("HTTP server failed", "error", err)
 		}
 	}()
 
@@ -101,7 +107,7 @@ func runServer(_ *cobra.Command, _ []string) {
 	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
 	<-sigCh
 
-	log.Println("🛑 Shutting down servers gracefully...")
+	logger.Info("Shutting down servers gracefully...")
 
 	// Create shutdown context with timeout
 	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -109,14 +115,14 @@ func runServer(_ *cobra.Command, _ []string) {
 
 	// Shutdown HTTP server
 	if err := httpServer.Shutdown(shutdownCtx); err != nil {
-		log.Printf("HTTP server shutdown error: %v", err)
+		logger.Error("HTTP server shutdown error", "error", err)
 	} else {
-		log.Println("✅ HTTP server stopped gracefully")
+		logger.Info("HTTP server stopped gracefully")
 	}
 
 	// Shutdown gRPC server
 	grpcServer.GracefulStop()
-	log.Println("✅ gRPC server stopped gracefully")
+	logger.Info("gRPC server stopped gracefully")
 }
 
 func withCORS(h http.Handler) http.Handler {
@@ -133,16 +139,21 @@ func withCORS(h http.Handler) http.Handler {
 	})
 }
 
+func withLogging(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		logger.Info(
+			"Incoming request",
+			"method", r.Method,
+			"uri", r.RequestURI,
+			"remote", r.RemoteAddr,
+		)
+		h.ServeHTTP(w, r)
+	})
+}
+
 func init() {
 	if err := godotenv.Load(); err != nil {
-		log.Println("⚠️  No .env file found or failed to load")
-	}
-
-	func withLogging(h http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			log.Printf("--> %s %s", r.Method, r.RequestURI)
-			h.ServeHTTP(w, r)
-		})
+		logger.Warn("No .env file found or failed to load")
 	}
 
 	viper.AutomaticEnv()
@@ -169,6 +180,6 @@ func init() {
 
 func main() {
 	if err := rootCmd.Execute(); err != nil {
-		log.Fatalf("Command failed: %v", err)
+		logger.Error("Command failed", "error", err)
 	}
 }

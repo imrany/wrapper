@@ -2,7 +2,6 @@ package v1
 
 import (
 	"context"
-	"log"
 	"strings"
 
 	geminiwrapper "github.com/imrany/wrapper/pkg/gemini"
@@ -18,12 +17,14 @@ func (s *APIV1Service) GenAi(ctx context.Context, req *v1pb.GenAiRequest) (*v1pb
 	}
 
 	if ctx.Err() != nil {
+		s.Logger.Error("Context error", "error", ctx.Err())
 		return nil, status.FromContextError(ctx.Err()).Err()
 	}
 
 	// Extract provider from model name (case-insensitive)
 	modelParts := strings.Split(s.Model, "-")
 	if len(modelParts) == 0 {
+		s.Logger.Error("Invalid model format", "model", s.Model)
 		return nil, status.Errorf(codes.InvalidArgument, "invalid model format: %s", s.Model)
 	}
 	provider := strings.ToLower(modelParts[0])
@@ -36,7 +37,7 @@ func (s *APIV1Service) GenAi(ctx context.Context, req *v1pb.GenAiRequest) (*v1pb
 		}
 		result, err := config.GenerateGeminiContent(ctx, req.Prompt)
 		if err != nil {
-			log.Printf("Gemini generation failed: %v", err)
+			s.Logger.Error("Gemini generation failed", "error", err)
 			// Check if it's a context error
 			if ctx.Err() != nil {
 				return nil, status.FromContextError(ctx.Err()).Err()
@@ -56,7 +57,7 @@ func (s *APIV1Service) GenAi(ctx context.Context, req *v1pb.GenAiRequest) (*v1pb
 		}
 		result, err := config.GenerateOpenAIContent(ctx, req.Prompt)
 		if err != nil {
-			log.Printf("OpenAI generation failed: %v", err)
+			s.Logger.Error("OpenAI generation failed", "error", err)
 			// Check if it's a context error
 			if ctx.Err() != nil {
 				return nil, status.FromContextError(ctx.Err()).Err()
@@ -70,7 +71,7 @@ func (s *APIV1Service) GenAi(ctx context.Context, req *v1pb.GenAiRequest) (*v1pb
 		}, nil
 
 	default:
-		log.Printf("Unsupported model: %s", s.Model)
+		s.Logger.Warn("Unsupported model", "model", s.Model)
 		return nil, status.Errorf(codes.InvalidArgument, "unsupported model: %s", s.Model)
 	}
 }
