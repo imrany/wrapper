@@ -29,7 +29,7 @@ var rootCmd = &cobra.Command{
 	Run:   runServer,
 }
 
-var logger = slog.New(slog.NewJSONHandler(os.Stdout, nil))
+var logger = slog.New(slog.NewTextHandler(os.Stdout, nil))
 
 func runServer(_ *cobra.Command, _ []string) {
 	ctx, cancel := context.WithCancel(context.Background())
