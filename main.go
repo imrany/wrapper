@@ -85,7 +85,7 @@ func runServer(_ *cobra.Command, _ []string) {
 	// Create HTTP server with proper shutdown support
 	httpServer := &http.Server{
 		Addr:    "0.0.0.0:8090",
-		Handler: withCORS(mux),
+		Handler: withLogging(withCORS(mux)),
 	}
 
 	// Start HTTP server in a goroutine
@@ -136,6 +136,13 @@ func withCORS(h http.Handler) http.Handler {
 func init() {
 	if err := godotenv.Load(); err != nil {
 		log.Println("⚠️  No .env file found or failed to load")
+	}
+
+	func withLogging(h http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			log.Printf("--> %s %s", r.Method, r.RequestURI)
+			h.ServeHTTP(w, r)
+		})
 	}
 
 	viper.AutomaticEnv()
