@@ -22,7 +22,7 @@ Docker support, and flexible configuration via flags or environment variables.
 ### 1. **Run Locally**
 
 ```bash
-go run main.go --port=8000 --api-key=your_key_here --model=gemini-2.0-flash
+go run main.go --port=8000 --api-key=your_key_here --model=gemini-2.5-pro
 ```
 
 Or use environment variables:
@@ -30,7 +30,7 @@ Or use environment variables:
 ```bash
 export PORT=8000
 export API_KEY=your_key_here
-export MODEL=gemini-2.0-flash
+export MODEL=gemini-2.5-pro
 go run main.go
 ```
 
@@ -57,7 +57,7 @@ docker run -d --name wrapper \
   ghcr.io/imrany/wrapper \
   --port=8000 \
   --api-key=your_key_here
-  --model=gemini-2.0-flash
+  --model=gemini-2.5-pro
 ```
 
 #### Option B: `.env` file
@@ -67,7 +67,7 @@ Create `.env`:
 ```env
 PORT=8000
 API_KEY="your_key_here"
-MODEL="gemini-2.0-flash" # or "gpt-5.1-2025-11-13"
+MODEL="gemini-2.5-pro" # or "gpt-5.1-2025-11-13"
 ```
 
 Run:
@@ -132,7 +132,7 @@ Visit: `http://localhost:8090/swagger/`
 | --------- | ------------------------------------------------------------- |
 | `PORT`    | gRPC server port                                              |
 | `API_KEY` | Gemini API key                                                |
-| `MODEL`   | Provides model name, e.g gemini-2.0-flash, gpt-5.1-2025-11-13 |
+| `MODEL`   | Provides model name, e.g gemini-2.5-pro, gpt-5.1-2025-11-13 |
 
 ---
 
